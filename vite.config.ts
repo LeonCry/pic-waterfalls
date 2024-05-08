@@ -1,28 +1,32 @@
-import { defineConfig, loadEnv, type ConfigEnv } from 'vite';
-import react from '@vitejs/plugin-react';
-import * as path from 'path';
-import eslintPlugin from 'vite-plugin-eslint';
-import Components from 'unplugin-react-components/vite';
+import path from 'node:path';
+import { defineConfig, loadEnv } from 'vite';
+import Vue from '@vitejs/plugin-vue';
+import Components from 'unplugin-vue-components/vite';
+import AutoImport from 'unplugin-auto-import/vite';
 import tailwindcss from 'tailwindcss';
-
-export default defineConfig(({ mode }: ConfigEnv) => {
+export default defineConfig(({ mode }) => {
+  //command = 'serve' | 'build'
   const env = loadEnv(mode, process.cwd());
   return {
-    base: env.VITE_APP_ROUTER_PREFIX,
-    plugins: [
-      react(),
-      eslintPlugin(),
-      Components({
-        dts: true,
-        dirs: ['src/components'],
-        resolvers: [],
-      }),
-    ],
+    base: `/${env.VITE_APP_ROUTER_PREFIX}`,
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, 'src'),
+        '@': `${path.resolve(__dirname, 'src')}`,
       },
     },
+    plugins: [
+      Vue(),
+      AutoImport({
+        imports: ['vue', 'vue-router', '@vueuse/core', 'pinia'],
+        dts: true,
+        // resolvers: [],
+      }),
+      Components({
+        dts: true,
+        dirs: ['src/components', 'src/views', 'src/layouts'],
+        // resolvers: [],
+      }),
+    ],
     css: {
       postcss: {
         plugins: [tailwindcss],
@@ -34,15 +38,7 @@ export default defineConfig(({ mode }: ConfigEnv) => {
     },
     server: {
       host: 'localhost',
-      port: 5588,
-      proxy: {
-        '/api': {
-          target: env.VITE_APP_PROXY_API,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
-        },
-      },
-      cors: true,
+      port: 4444,
     },
   };
 });
