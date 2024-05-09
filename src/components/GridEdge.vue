@@ -1,12 +1,12 @@
 <template>
-  <main ref="container" class="h-full w-full overflow-auto">
+  <main ref="container" class="relative z-10 h-full w-full overflow-auto">
     <section
-      class="edge-grid bg-zinc-200"
+      class="edge-grid"
       :style="{
         gridTemplateAreas,
         width: baseWH * sum(wTList) + 'px',
         height: gridAreaList.length * baseWH + 'px',
-        opacity: arrivedState.bottom && y !== 0 ? 0 : 1,
+        opacity: arrivedState.bottom && isScrolling && y !== 0 ? 0 : 1,
       }"
     >
       <div v-for="n in allGridAreaNames" :key="n" :style="{ gridArea: n }" class="edge-block">
@@ -22,9 +22,9 @@ interface blockType {
   height: number;
 }
 const container = ref<HTMLDivElement | null>(null);
-const { arrivedState, y } = useScroll(container);
+const { arrivedState, y, isScrolling } = useScroll(container);
 // base-w-h
-const baseWH = 100;
+const baseWH = 90;
 // 单次请求数
 const count = 10;
 // block宽长比
@@ -133,13 +133,12 @@ whenever(() => arrivedState.bottom, getGridTemplateAreaStyle);
   padding: 40px;
   grid-template-rows: repeat(auto-fill, 1fr);
   grid-auto-flow: row dense;
-  transition: all 200ms ease-in-out;
+  transition: opacity 400ms ease-in-out;
 }
 .edge-block {
   transition: background-color 0.55s;
-  border: 1px solid #000;
+  border-radius: 6px;
   background-color: lightgray;
-  padding: 4px;
   &:hover {
     background-color: #cfdaf3;
   }
